@@ -12,7 +12,7 @@ class UserProfile(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(max_length=100)
     potential_risk = models.JSONField()
-    attract_reason = models.TextField(null=True, blank=True)
+    attract_reason = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -24,6 +24,15 @@ class Food(models.Model):
 
     def __str__(self):
         return self.name
+
+class PotentialRisk(models.Model):
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    pregnancy_week_start = models.IntegerField()
+    pregnancy_week_end = models.IntegerField()
+    risk_level = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f'{self.ingredient.name} ({self.pregnancy_week_start} - {self.pregnancy_week_end} weeks: {self.risk_level}'
 
 class UserHealthRecord(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
 
 from mommymomeatsapp.forms import FoodForm
+from .models import Food, PotentialRisk
 
 
 def home(request):
@@ -50,3 +51,26 @@ def check_food(request):
         form = FoodForm()
 
     return render(request, 'mommymomeatsapp/food_safety_check.html', {'form': form})
+
+def check_food_safety(request):
+    food_name = request.GET.get('food_name')
+    pregnancy_week = int(request.GET.get('pregnancy_week'))
+
+    food = Food.objects.get(name=food_name)
+    risks = []
+
+    for ingredient in food.ingredients.all():
+        potential_risks = PotentialRisk.objects.filter(
+            ingredient=ingredient, pregnancy_week_start__lte=pregnancy_week, pregnancy_week_end__gte=pregnancy_week)
+        for risk in potential_risks:
+            risks.append({
+                'ingredient': ingredient.name,
+                'risk_level': risk.risk_level
+            })
+
+    context = {
+        'food': food,
+        'risks': risks,
+        'pregnancy_week': pregnancy_week
+    }
+    return render(request, 'mommymomeatsapp/food_safety.html', context)

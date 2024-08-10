@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Check safety of {{ food.name }}</h1>
+
+<p>pregnancy week: week of {{ pregnancy_week}}</p>
+
+{% if risks %}
+    <h2>Potential risk ingredients:</h2>
+    <ul>
+        {% for risk in risks %}
+            <li>{{ risk.ingredient }} - risk level: {{ </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>This food is determined as safe.</p>
+{% endif %}
+
+{% endblock %}
