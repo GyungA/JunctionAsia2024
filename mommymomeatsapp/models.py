@@ -12,7 +12,7 @@ class UserProfile(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(max_length=100, unique=True)
     verified = models.BooleanField(default=False)
-    attract_reason = models.CharField(max_length=255, null=True, blank=True)
+    attract_reason = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
@@ -33,6 +33,13 @@ class PotentialRisk(models.Model):
 
     def __str__(self):
         return f'{self.ingredient.name} ({self.pregnancy_week_start} - {self.pregnancy_week_end} weeks: {self.risk_level}'
+
+class Substitution(models.Model):
+    substitutable_attract_reason = models.CharField(max_length=255)
+    recommended_food = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f'{self.recommended_food} (for {self.substitutable_attract_reason})'
 
 class UserHealthRecord(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

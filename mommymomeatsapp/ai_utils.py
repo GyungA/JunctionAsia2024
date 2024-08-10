@@ -69,3 +69,34 @@ def generate_food_data(food_name):
         return HttpResponse("Error processing the request. Please try again.", status=400)
 
     return food_data
+
+def generate_attract_reason(ingredient_name):
+    prompt = f"Please provide an attract reason for the ingredient '{ingredient_name}'. Possible reasons include fatigue, stress, etc."
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=50
+    )
+
+    generated_data = response.choices[0]['message']['content'].strip()
+
+    # Parsing the response and returning the attract reason
+    return generated_data
+
+def generate_substitution(attract_reason):
+    prompt = f"Please suggest a healthy food alternative for someone craving food due to '{attract_reason}'. response example: '두부'"
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=50
+    )
+
+    generated_data = response.choices[0]['message']['content'].strip()
+
+    return generated_data

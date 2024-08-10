@@ -1,25 +1,41 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mx-auto mt-8">
-    <h2 class="text-2xl font-bold mb-4">Food Safety Check Results</h2>
-    <p><strong>Food:</strong> {{ food.name }}</p>
-    <p><strong>Calories:</strong> {{ food.kcal }}</p>
+<div class="container mx-auto mt-8 bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-4 border-b pb-2">Food Safety Check Results</h2>
 
-    <h3 class="text-xl font-semibold mt-6">Potential Risks:</h3>
+    <div class="mt-4">
+        <p class="text-lg"><strong>Food:</strong> <span class="font-semibold">{{ food.name }}</span></p>
+        <p class="text-lg"><strong>Calories:</strong> <span class="font-semibold">{{ food.kcal }}</span></p>
+    </div>
+
+    <h3 class="text-xl font-semibold mt-6 border-b pb-2">Potential Risks:</h3>
     {% if risks %}
-    <ul class="list-disc list-inside">
+    <ul class="list-disc list-inside space-y-4 mt-4">
         {% for risk in risks %}
-        <li>{{ risk.ingredient }}: {{ risk.risk_level }} -
-            {% if risk.verified %}
-            verified ✅
-            {% else %}
-            not verified ☑️
-            {% endif %}</li>
+        <li class="text-lg">
+            <span class="font-semibold">{{ risk.ingredient }}</span>: {{ risk.risk_level }} -
+            <span class="ml-2 inline-flex items-center">
+                    {% if risk.verified %}
+                    <span class="text-green-600">verified ✅</span>
+                    {% else %}
+                    <span class="text-yellow-600">not verified ☑️</span>
+                    {% endif %}
+                </span>
+
+            {% if risk.substitution %}
+            <p class="mt-2 text-sm text-gray-700 leading-relaxed">
+                <span class="italic">I understand that...: {{ risk.attract_reason }}
+            </p>
+            <p class="mt-1 text-sm text-gray-700 leading-relaxed">
+                but how about trying...: <b>{{ risk.substitution }}</b>? It could be a good alternative.
+            </p>
+            {% endif %}
+        </li>
         {% endfor %}
     </ul>
     {% else %}
-    <p>No risks found for this food at the given pregnancy week.</p>
+    <p class="mt-4 text-lg text-gray-700">No risks found for this food at the given pregnancy week.</p>
     {% endif %}
 </div>
 {% endblock %}
