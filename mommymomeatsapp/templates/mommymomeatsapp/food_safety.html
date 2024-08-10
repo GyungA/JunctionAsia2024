@@ -10,7 +10,12 @@
     {% if risks %}
     <ul class="list-disc list-inside">
         {% for risk in risks %}
-        <li>{{ risk.ingredient }}: {{ risk.risk_level }}</li>
+        <li>{{ risk.ingredient }}: {{ risk.risk_level }} -
+            {% if risk.verified %}
+            verified ✅
+            {% else %}
+            not verified ☑️
+            {% endif %}</li>
         {% endfor %}
     </ul>
     {% else %}
