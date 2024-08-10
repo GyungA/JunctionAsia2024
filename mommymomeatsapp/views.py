@@ -47,11 +47,10 @@ def check_food_safety(request):
     except Food.DoesNotExist:
         # 없으면 AI 생성 후 저장
         food_data = generate_food_data(food_name)
-        food = Food.objects.create(name=food_name, kcal=food_data['kcal'])
+        food = Food.objects.create(name=food_name, kcal=int(food_data['kcal']))
 
         for ingredient_data in food_data['ingredients']:
-            ingredient, created = Ingredient.objects.get_or_create(name=ingredient_data['name'],
-                                                                   defaults={'potential_risk': ingredient_data['potential_risk']})
+            ingredient, created = Ingredient.objects.get_or_create(name=ingredient_data['name'])
             food.ingredients.add(ingredient)
             # PotentialRisk 정보 추가
             for risk_data in ingredient_data.get('potential_risks', []):

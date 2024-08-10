@@ -10,17 +10,37 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def generate_food_data(food_name):
     prompt = f"""
-    Please provide the nutritional facts and potential risks for the food '{food_name}' during pregnancy.
-    Respond only with a JSON object containing the following keys:
-    - "name" (the name of the food)
-    - "ingredients" (a list of ingredients, each as an object with "name" and "potential_risk")
-    - "kcal" (the total kcal for the food)
-    Example(It's just example. Key is important, not value here.):
+    Please provide the nutritional facts for the food '{food_name}' during pregnancy.
+    Respond only with a JSON object. Must contain the 3 following keys:
+    1. "name": the name of the food
+    2. "ingredients": a list of ingredients, each as an object with:
+        - "name": the name of the ingredient
+        - "potential_risks": a list of risk levels during pregnancy, each as an object with:
+            - "week_start": the starting week of the pregnancy when this risk is relevant
+            - "week_end": the ending week of the pregnancy when this risk is relevant
+            - "risk_level": the level of risk during this period (e.g., "low", "medium", "high")
+    3. "kcal": the total kcal for the food
+
+    The response should be a valid JSON object. Do not include any additional text or explanation.
+
+    response example:
     {{
         "name": "Apple",
         "ingredients": [
-            {{"name": "Vitamin C", "potential_risk": "low"}},
-            {{"name": "Sugar", "potential_risk": "medium"}}
+            {{
+                "name": "Vitamin C",
+                "potential_risks": [
+                    {{"week_start": 1, "week_end": 12, "risk_level": "low"}},
+                    {{"week_start": 13, "week_end": 28, "risk_level": "medium"}},
+                    {{"week_start": 29, "week_end": 40, "risk_level": "high"}}
+                ]
+            }},
+            {{
+                "name": "Sugar",
+                "potential_risks": [
+                    {{"week_start": 1, "week_end": 40, "risk_level": "high"}}
+                ]
+            }}
         ],
         "kcal": 52
     }}
@@ -30,8 +50,8 @@ def generate_food_data(food_name):
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": prompt}
-            ],
-        max_tokens=150
+        ],
+        max_tokens=1000
     )
 
     # 응답 데이터 파싱

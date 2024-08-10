@@ -11,7 +11,6 @@ class UserProfile(models.Model):
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    potential_risk = models.JSONField()
     attract_reason = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):

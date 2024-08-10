@@ -1,19 +1,20 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Check safety of {{ food.name }}</h1>
+<div class="container mx-auto mt-8">
+    <h2 class="text-2xl font-bold mb-4">Food Safety Check Results</h2>
+    <p><strong>Food:</strong> {{ food.name }}</p>
+    <p><strong>Calories:</strong> {{ food.kcal }}</p>
 
-<p>pregnancy week: week of {{ pregnancy_week}}</p>
-
-{% if risks %}
-    <h2>Potential risk ingredients:</h2>
-    <ul>
+    <h3 class="text-xl font-semibold mt-6">Potential Risks:</h3>
+    {% if risks %}
+    <ul class="list-disc list-inside">
         {% for risk in risks %}
-            <li>{{ risk.ingredient }} - risk level: {{ </li>
+        <li>{{ risk.ingredient }}: {{ risk.risk_level }}</li>
         {% endfor %}
     </ul>
-{% else %}
-    <p>This food is determined as safe.</p>
-{% endif %}
-
+    {% else %}
+    <p>No risks found for this food at the given pregnancy week.</p>
+    {% endif %}
+</div>
 {% endblock %}
