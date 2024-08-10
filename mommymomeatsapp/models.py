@@ -10,7 +10,7 @@ class UserProfile(models.Model):
         return self.user.username;
 
 class Ingredient(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     potential_risk = models.JSONField()
     attract_reason = models.CharField(max_length=255, null=True, blank=True)
 
@@ -20,7 +20,7 @@ class Ingredient(models.Model):
 class Food(models.Model):
     name = models.CharField(max_length=100)
     ingredients = models.ManyToManyField(Ingredient)
-    kcal = models.FloatField()
+    kcal = models.IntegerField()
 
     def __str__(self):
         return self.name
