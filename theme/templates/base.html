@@ -13,7 +13,9 @@
 	<div class="container mx-auto">
 		<!-- Naviation Bar -->
 		<nav class="flex justify-between items-center py-4">
-			<h1 class="text-3xl font-bold">MommyMomEats</h1>
+			<a href="http://localhost:8000/">
+				<h1 class="text-3xl font-bold">MommyMomEats</h1>
+			</a>
 			<div>
 				{% if user.is_authenticated %}
 					<a href="{% url 'logout' %}" class="text-blue-500 hover:underline">Logout</a>

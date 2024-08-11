@@ -2,9 +2,8 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
 
-from mommymomeatsapp.forms import FoodForm
-from .models import Food, PotentialRisk
-
+from .models import Food, Ingredient, PotentialRisk, Substitution
+from .ai_utils import generate_food_data, generate_attract_reason, generate_substitution
 
 def home(request):
     return render(request, 'home.html')
@@ -38,35 +37,58 @@ def logout_view(request):
     return redirect('home')
 
 # 음식 안전성 검사
-def check_food(request):
-    if request.method == 'POST':
-        form = FoodForm(request.POST)
-        if form.is_valid():
-            food = form.save()
-            # TODO: 안전성 분석
-            feedback = "This food is safe for consumption."
-            return render(request, 'mommymomeatsapp/food_safety_check.html',
-                          {'food': food, 'feedback': feedback})
-    else:
-        form = FoodForm()
-
-    return render(request, 'mommymomeatsapp/food_safety_check.html', {'form': form})
-
 def check_food_safety(request):
     food_name = request.GET.get('food_name')
     pregnancy_week = int(request.GET.get('pregnancy_week'))
 
-    food = Food.objects.get(name=food_name)
+    try:
+        # DB에서 음식 정보 조회
+        food = Food.objects.get(name=food_name)
+    except Food.DoesNotExist:
+        # 없으면 AI 생성 후 저장
+        food_data = generate_food_data(food_name)
+        food = Food.objects.create(name=food_name, kcal=int(food_data['kcal']))
+
+        for ingredient_data in food_data['ingredients']:
+            ingredient, created = Ingredient.objects.get_or_create(name=ingredient_data['name'])
+
+            if not ingredient.attract_reason:
+                ingredient.attract_reason = generate_attract_reason(ingredient.name)
+                ingredient.save()
+
+            food.ingredients.add(ingredient)
+            # PotentialRisk 정보 추가
+            for risk_data in ingredient_data.get('potential_risks', []):
+                PotentialRisk.objects.create(
+                    ingredient=ingredient, pregnancy_week_start=risk_data['week_start'],
+                    pregnancy_week_end=risk_data['week_end'], risk_level=risk_data['risk_level']
+                )
+
     risks = []
 
+    # 음식 성분별 위험성 평가
     for ingredient in food.ingredients.all():
         potential_risks = PotentialRisk.objects.filter(
-            ingredient=ingredient, pregnancy_week_start__lte=pregnancy_week, pregnancy_week_end__gte=pregnancy_week)
+            ingredient=ingredient, pregnancy_week_start__lte=pregnancy_week, pregnancy_week_end__gte=pregnancy_week
+        )
         for risk in potential_risks:
             risks.append({
                 'ingredient': ingredient.name,
-                'risk_level': risk.risk_level
+                'risk_level': risk.risk_level,
+                'attract_reason': ingredient.attract_reason
             })
+
+            if risk.risk_level != 'low':
+                substitution = Substitution.objects.filter(substitutable_attract_reason=ingredient.attract_reason).first()
+
+                if not substitution:
+                    substitution_food = generate_substitution(ingredient.attract_reason)
+                    substitution = Substitution.objects.create(
+                        substitutable_attract_reason=ingredient.attract_reason,
+                        recommended_food=substitution_food
+                    )
+
+                risks[-1]['substitution'] = substitution.recommended_food
 
     context = {
         'food': food,
